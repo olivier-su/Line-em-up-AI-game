@@ -40,18 +40,24 @@ class Game:
         # Horizontal win
         for i in range(0, self.size):
             for j in range(self.size-self.goal+1):#-goal for border
+                should_continue = False;
                 for x in range(self.goal-1):
-                    if(self.current_state[j][i] == '.'and self.current_state[j][i] == "*" and self.current_state[j][i]!=self.current_state[j+1+x][i]):
+                    if(self.current_state[j][i] == '.'or self.current_state[j][i] == "*" or self.current_state[j][i]!=self.current_state[j+1+x][i]):
+                        should_continue=True
                         break
-                return self.current_state[j][i]
+                if not should_continue:
+                    return self.current_state[j][i]
 
         # # Vertical win
-        # for j in range(0, self.size):
-        #     for i in range(self.size-self.goal+1):#-goal for border
-        #         for x in range(self.goal-1):
-        #             if(self.current_state[j][i] == '.'and self.current_state[j][i] == "*" and self.current_state[j][i]!=self.current_state[j+1][i]):
-        #                 break
-        #         return self.current_state[j][i]
+        for j in range(0, self.size):
+            for i in range(self.size-self.goal+1):#-goal for border
+                should_continue = False;
+                for x in range(self.goal-1):
+                    if(self.current_state[j][i] == '.'or self.current_state[j][i] == "*" or self.current_state[j][i]!=self.current_state[j][i+1+x]):
+                        should_continue=True
+                        break
+                if not should_continue:
+                    return self.current_state[j][i]
 
 
         # # Horizontal win
@@ -81,12 +87,15 @@ class Game:
         return '.'
 
 def main():
-    g = Game(size=3)
+    g = Game(size=5)
 
     # some simple testing
-    g.current_state[0][0] = 'x'
-    g.current_state[1][0] = "x"
-    g.current_state[0][2] = "x"
+    g.current_state[1][0] = 'o'
+    g.current_state[1][1] = 'o'
+    g.current_state[1][2] = 'x'
+    g.current_state[1][3] = "x"
+    g.current_state[1][4] = "x"
+
     print(g.is_end())
     #print(g.current_state[1][0])
     g.draw_board()
