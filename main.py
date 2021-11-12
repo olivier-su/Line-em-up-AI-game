@@ -1,19 +1,37 @@
+import random
+
+
 class Game:
     MINIMAX = 0
     ALPHABETA = 1
     HUMAN = 2
     AI = 3
 
-    def __init__(self, recommend=True, size=3, goal=3):
+    def __init__(self, recommend=True, size=3, goal=3,block_count=0):
         self.size = size
         self.initialize_game()
         self.recommend = recommend
         self.goal = goal
+        self.block_count=block_count
+        self.remain_blocks=block_count
 
     def initialize_game(self):
         self.current_state = [["."] * self.size for i in range(self.size)]
         # Player X always plays first
         self.player_turn = 'X'
+
+    def put_block(self,px,py):
+        if self.remain_blocks ==0:
+            return False
+        if self.current_state[px][py]!='.':
+            return False
+        self.current_state[px][py]='*'
+        self.remain_blocks=self.remain_blocks-1
+        return True
+
+    def put_random_blocks(self):
+        while self.remain_blocks>0:
+            self.put_block(random.randrange(self.size),random.randrange(self.size))
 
     def draw_board(self):
         print()
@@ -141,15 +159,48 @@ class Game:
         return '.'
 
 
-def main():
-    g = Game(size=5)
+def check_end(self):
+    self.result = self.is_end()
+    # Printing the appropriate message if the game has ended
+    if self.result is not None:
+        if self.result == 'X':
+            print('The winner is X!')
+        elif self.result == 'O':
+            print('The winner is O!')
+        elif self.result == '.':
+            print("It's a tie!")
+        self.initialize_game()
+    return self.result
 
+
+def input_move(self):
+    while True:
+        print(F'Player {self.player_turn}, enter your move:')
+        px = int(input('enter the x coordinate: '))
+        py = int(input('enter the y coordinate: '))
+        if self.is_valid(px, py):
+            return (px, py)
+        else:
+            print('The move is not valid! Try again.')
+
+
+def switch_player(self):
+    if self.player_turn == 'X':
+        self.player_turn = 'O'
+    elif self.player_turn == 'O':
+        self.player_turn = 'X'
+    return self.player_turn
+
+def main():
+    g = Game(size=5,block_count=5)
+    g.put_random_blocks()
     # some simple testing
-    g.current_state[0][4] = 'o'
-    g.current_state[1][3] = 'x'
-    g.current_state[2][2] = 'x'
-    g.current_state[3][1] = "x"
-    g.current_state[4][0] = "o"
+    # g.current_state[0][4] = 'o'
+    # g.current_state[1][3] = 'x'
+    # g.current_state[2][2] = 'x'
+    # g.current_state[3][1] = "x"
+    # g.current_state[4][0] = "o"
+
 
     print(g.is_end())
     print(g.check_back_diagonal(0, 4))
