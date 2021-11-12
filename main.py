@@ -118,17 +118,17 @@ class Game:
             if result is not None:
                 return result
 
-            # Second diagonal win
-            # first half
-            for i in range(self.size):
-                result = self.check_back_diagonal(0, i)
-                if result is not None:
-                    return result
-            # second half
-            for i in range(1, self.size):
-                result = self.check_back_diagonal(i, self.size - 1)
-                if result is not None:
-                    return result
+        # Second diagonal win
+        # first half
+        for i in range(self.size):
+            result = self.check_back_diagonal(0, i)
+            if result is not None:
+                return result
+        # second half
+        for i in range(1, self.size):
+            result = self.check_back_diagonal(i, self.size - 1)
+            if result is not None:
+                return result
 
         # Is whole board full?
         for i in range(0, self.size):
