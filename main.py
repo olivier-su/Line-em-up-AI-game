@@ -36,13 +36,59 @@ class Game:
         else:
             return True
 
+    def is_end(self):
+        # Horizontal win
+        for i in range(0, self.size):
+            for j in range(self.size-self.goal+1):#-goal for border
+                for x in range(self.goal-1):
+                    if(self.current_state[j][i] == '.'and self.current_state[j][i] == "*" and self.current_state[j][i]!=self.current_state[j+1+x][i]):
+                        break
+                return self.current_state[j][i]
+
+        # # Vertical win
+        # for j in range(0, self.size):
+        #     for i in range(self.size-self.goal+1):#-goal for border
+        #         for x in range(self.goal-1):
+        #             if(self.current_state[j][i] == '.'and self.current_state[j][i] == "*" and self.current_state[j][i]!=self.current_state[j+1][i]):
+        #                 break
+        #         return self.current_state[j][i]
+
+
+        # # Horizontal win
+        # for i in range(0, 3):
+        #     if (self.current_state[i] == ['X', 'X', 'X']):
+        #         return 'X'
+        #     elif (self.current_state[i] == ['O', 'O', 'O']):
+        #         return 'O'
+        # # Main diagonal win
+        # if (self.current_state[0][0] != '.' and
+        #         self.current_state[0][0] == self.current_state[1][1] and
+        #         self.current_state[0][0] == self.current_state[2][2]):
+        #     return self.current_state[0][0]
+        # # Second diagonal win
+        # if (self.current_state[0][2] != '.' and
+        #         self.current_state[0][2] == self.current_state[1][1] and
+        #         self.current_state[0][2] == self.current_state[2][0]):
+        #     return self.current_state[0][2]
+        # # Is whole board full?
+        # for i in range(0, 3):
+        #     for j in range(0, 3):
+        #         # There's an empty field, we continue the game
+        #         if (self.current_state[i][j] == '.'):
+        #             return None
+
+        # It's a tie!
+        return '.'
 
 def main():
-    g = Game(size=10)
+    g = Game(size=3)
 
     # some simple testing
-    g.current_state[0][0] = '*'
-    print(g.is_valid(1, 0))
+    g.current_state[0][0] = 'x'
+    g.current_state[1][0] = "x"
+    g.current_state[0][2] = "x"
+    print(g.is_end())
+    #print(g.current_state[1][0])
     g.draw_board()
 
 
