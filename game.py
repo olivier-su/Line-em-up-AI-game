@@ -1,5 +1,5 @@
 import random
-
+import heuristics as Heuristic
 
 class Game:
     MINIMAX = 0
@@ -14,6 +14,13 @@ class Game:
         self.goal = goal
         self.block_count = block_count
         self.remain_blocks = block_count
+        self.heuristic= None
+
+    def set_heuristic(self, heuristic: Heuristic.HeuristicStrategy):
+        self.heuristic=heuristic
+
+    def evaluate_state(self):
+        self.heuristic.evaluate_state(self.current_state, self.size,self.goal)
 
     def initialize_game(self):
         self.current_state = [["."] * self.size for i in range(self.size)]
