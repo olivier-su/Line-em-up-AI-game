@@ -2,14 +2,14 @@ from game import Game
 import heuristics
 
 def run_customized_game():
-    size=input("Please enter the board size[3-10]: ")
-    goal=input('Please enter the wining line-up size[3-size]: ')
+    size=int(input("Please enter the board size[3-10]: "))
+    goal=int(input('Please enter the wining line-up size[3-size]: '))
     print('Please enter the mode you want: ')
     print('1.Human to Human')
     print('2.Human to AI')
     print('3.AI to Human')
     print('4.AI to AI')
-    mode=input('Your choice: ')
+    mode=int(input('Your choice: '))
     alphabeta=Game.MINIMAX
     time_allowed='5'
     player_X=Game.HUMAN
@@ -18,26 +18,26 @@ def run_customized_game():
         alphabeta_choice=input('Would you like to use alpha-beta for AI(s)? (y/n)')
         if alphabeta_choice=='y':
             alphabeta=Game.ALPHABETA
-        time_allowed=input('Please enter the maximum allowed toime for AI(s): ')
+        time_allowed=int(input('Please enter the maximum allowed time for AI(s): '))
     depth1=0
     if mode==3 or mode ==4:
         player_X=Game.AI
-        depth1=input('Please enter the maximum searching depth for AI X:')
+        depth1=int(input('Please enter the maximum searching depth for AI X:'))
     depth2=0
     if mode==2 or mode==4:
         player_Y=Game.AI
-        depth2=input('Please enter the maximum searching depth for AI O:')
+        depth2=int(input('Please enter the maximum searching depth for AI O:'))
 
 
-    block_count=input('Please enter how may blocks do you want[0-2*size]: ')
+    block_count=int(input('Please enter how may blocks do you want[0-2*size]: '))
     game= Game(size=size,goal=goal,block_count=block_count,maximum_depth_player_X=depth1,
                maximum_depth_player_O=depth2, search_time=time_allowed)
-    place_randomly=input('Would you like to please blocks randomly? (y/n)')
+    place_randomly=input('Would you like to place blocks randomly? (y/n)')
     if place_randomly=='n':
-        while game.block_count>0:
+        while game.remain_blocks>0:
             block_index=input('Please enter where do you want to put the block by index(A1,B2 etc.): ')
-            index_x=ord(block_index[0])
-            index_y=int(blokc_index[1])
+            index_x=ord(block_index[0])-ord('A')
+            index_y=int(block_index[1])
             if game.put_block(index_x,index_y):
                 print('Placement success!')
             else:
@@ -45,7 +45,7 @@ def run_customized_game():
     else:
         game.put_random_blocks()
 
-    game.play(algo=alphabeta,player_x=player_X,player_y=player_Y)
+    game.play(algo=alphabeta,player_x=player_X,player_o=player_Y)
 
 
 def run_preset_experiments():
