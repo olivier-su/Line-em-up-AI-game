@@ -17,22 +17,36 @@ class Game:
         self.goal = goal
         self.block_count = block_count
         self.remain_blocks = block_count
-        self.heuristic = None
-        self.max_depth_player_X = maximum_depth_player_X
-        self.max_depth_player_O = maximum_depth_player_O
+        self.heuristic_X = Heuristic.HeuristicE1()
+        self.heuristic_O= Heuristic.HeuristicE2()
+        self.maximum_depth_player_X = maximum_depth_player_X
+        self.maximum_depth_player_O = maximum_depth_player_O
         self.search_time = search_time
         self.blocks_coordinates = []
         self.file = open(f"gameTrace-{self.size}{self.block_count}{self.goal}{self.search_time}.txt","w")
         self.file.write(f"n={self.size} b={self.block_count} s={self.goal} t={self.search_time}\n")
 
-    def set_heuristic(self, heuristic: Heuristic.HeuristicStrategy):
-        self.heuristic = heuristic
+    def set_heuristic_X(self, heuristic: Heuristic.HeuristicStrategy):
+        self.heuristic_X = heuristic
+    def set_heuristic_O(self, heuristic: Heuristic.HeuristicStrategy):
+        self.heuristic_O = heuristic
 
-    def evaluate_state(self):
-        return self.heuristic.evaluate_state(self.current_state, self.size, self.goal)
+    def evaluate_state(self,player):
+        if player=='X':
+            return self.heuristic_X.evaluate_state(self.current_state, self.size, self.goal)
+        else:
+            return self.heuristic_O.evaluate_state(self.current_state, self.size, self.goal)
 
-    def get_winning_score(self):
-        return self.heuristic.get_wining_score()
+    # def evaluate_state_O(self):
+    #     return self.heuristic_O.evaluate_state(self.current_state, self.size, self.goal)
+
+    def get_winning_score(self,player):
+        if player=='X':
+            return self.heuristic_X.get_winning_score()
+        else:
+            return self.heuristic_O.get_winning_score()
+    # def get_winning_score_O(self):
+    #     return self.heuristic_O.get_wining_score()
 
     def initialize_game(self):
         self.current_state = [["."] * self.size for i in range(self.size)]
@@ -210,44 +224,49 @@ class Game:
         # It's a tie!
         return '.'
 
-    def minimax(self,start_time, max=False, current_depth=0):
+    def minimax(self,start_time,current_player, max=False, current_depth=0):
         # Minimizing for 'X' and maximizing for 'O'
         # Possible values are:
         # -1 - win for 'X'
         # 0  - a tie
         # 1  - loss for 'X'
         # We're initially setting it to 2 or -2 as worse than the worst case:
-        maximum_depth = self.max_depth_player_X
-        value = 2
+
+        winning_score = self.get_winning_score('O')
+        maximum_depth = self.maximum_depth_player_O
+
+        if current_player == 'X':
+            winning_score = self.get_winning_score('X')
+            maximum_depth = self.maximum_depth_player_X
+        value = winning_score * 2
         if max:
-            value = -2
-            maximum_depth = self.max_depth_player_O
+            value = -value
         x = None
         y = None
         result = self.is_end()
         if result == 'X':
-            return (-1, x, y)
+            return (-winning_score, x, y)
         elif result == 'O':
-            return (1, x, y)
+            return (winning_score, x, y)
         elif result == '.':
             return (0, x, y)
-        if (time.time()-start_time)*1000 >= self.search_time*0.9*1000:
-            return (self.evaluate_state(),x,y)
+        if (time.time() - start_time) * 1000 >= self.search_time * 0.9:
+            return (self.evaluate_state(current_player), x, y)
         if current_depth == maximum_depth:
-            return (self.evaluate_state(), x, y)
-        for i in range(0, 3):
-            for j in range(0, 3):
+            return (self.evaluate_state(current_player), x, y)
+        for i in range(0, self.size):
+            for j in range(0, self.size):
                 if self.current_state[i][j] == '.':
                     if max:
                         self.current_state[i][j] = 'O'
-                        (v, _, _) = self.minimax(max=False, current_depth=current_depth + 1)
+                        (v, _, _) = self.minimax(start_time,current_player,max=False, current_depth=current_depth + 1)
                         if v > value:
                             value = v
                             x = i
                             y = j
                     else:
                         self.current_state[i][j] = 'X'
-                        (v, _, _) = self.minimax(max=True, current_depth=current_depth + 1)
+                        (v, _, _) = self.minimax(start_time,current_player,max=True, current_depth=current_depth + 1)
                         if v < value:
                             value = v
                             x = i
@@ -255,44 +274,48 @@ class Game:
                     self.current_state[i][j] = '.'
         return (value, x, y)
 
-    def alphabeta(self,start_time, alpha=-2, beta=2, max=False, current_depth=0):
+    def alphabeta(self,start_time, current_player,alpha=-2, beta=2, max=False, current_depth=0):
         # Minimizing for 'X' and maximizing for 'O'
         # Possible values are:
         # -1 - win for 'X'
         # 0  - a tie
         # 1  - loss for 'X'
         # We're initially setting it to 2 or -2 as worse than the worst case:
-        maximum_depth = self.max_depth_player_X
-        value = 2
+        winning_score = self.get_winning_score('O')
+        maximum_depth = self.maximum_depth_player_O
+
+        if current_player == 'X':
+            winning_score = self.get_winning_score('X')
+            maximum_depth = self.maximum_depth_player_X
+        value = winning_score * 2
         if max:
-            value = -2
-            maximum_depth = self.max_depth_player_O
+            value=-value
         x = None
         y = None
         result = self.is_end()
         if result == 'X':
-            return (-1, x, y)
+            return (-winning_score, x, y)
         elif result == 'O':
-            return (1, x, y)
+            return (winning_score, x, y)
         elif result == '.':
             return (0, x, y)
         if (time.time()-start_time)*1000 >= self.search_time*0.9:
-            return (self.evaluate_state(),x,y)
+            return (self.evaluate_state(current_player),x,y)
         if current_depth == maximum_depth:
-            return (self.evaluate_state(), x, y)
-        for i in range(0, 3):
-            for j in range(0, 3):
+            return (self.evaluate_state(current_player), x, y)
+        for i in range(0, self.size):
+            for j in range(0, self.size):
                 if self.current_state[i][j] == '.':
                     if max:
                         self.current_state[i][j] = 'O'
-                        (v, _, _) = self.alphabeta(alpha, beta, max=False, current_depth=current_depth + 1)
+                        (v, _, _) = self.alphabeta(start_time,current_player,alpha, beta, max=False, current_depth=current_depth + 1)
                         if v > value:
                             value = v
                             x = i
                             y = j
                     else:
                         self.current_state[i][j] = 'X'
-                        (v, _, _) = self.alphabeta(alpha, beta, max=True, current_depth=current_depth + 1)
+                        (v, _, _) = self.alphabeta(start_time,current_player,alpha, beta, max=True, current_depth=current_depth + 1)
                         if v < value:
                             value = v
                             x = i
@@ -324,14 +347,14 @@ class Game:
             start = time.time()
             if algo == self.MINIMAX:
                 if self.player_turn == 'X':
-                    (_, x, y) = self.minimax(max=False,start_time=start)
+                    (_, x, y) = self.minimax(max=False,start_time=start,current_player=self.player_turn)
                 else:
-                    (_, x, y) = self.minimax(max=True, start_time=start)
+                    (_, x, y) = self.minimax(max=True, start_time=start,current_player=self.player_turn)
             else:  # algo == self.ALPHABETA
                 if self.player_turn == 'X':
-                    (m, x, y) = self.alphabeta(max=False,start_time=start)
+                    (m, x, y) = self.alphabeta(max=False,start_time=start,current_player=self.player_turn)
                 else:
-                    (m, x, y) = self.alphabeta(max=True, start_time=start)
+                    (m, x, y) = self.alphabeta(max=True, start_time=start,current_player=self.player_turn)
             end = time.time()
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
                     self.player_turn == 'O' and player_o == self.HUMAN):
