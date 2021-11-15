@@ -76,8 +76,12 @@ class HeuristicE2(HeuristicStrategy):
         # meaning: find countinues '.' or max_tartget or combination of both
         if re.search(f"[{self.max_target}.]{{{goal}}}", line_string):
             score += 1
+            if re.search(f"\.{self.max_target}{{{goal-1}}}", line_string) or re.search(f"{self.max_target}{{{goal-1}}}\.", line_string):
+                score+=10
         if re.search(f"[{self.min_target}.]{{{goal}}}", line_string):
             score -= 1
+            if re.search(f"\.{self.min_target}{{{goal-1}}}", line_string) or re.search(f"{self.min_target}{{{goal-1}}}\.", line_string):
+                score-=10
         return score
 
     def evaluate_state(self, state, size, goal):

@@ -63,6 +63,8 @@ def run_games(n, b, s, t, d1, d2, a1, a2, block_position, repeat_times):
     if a2:
         algo_y = Game.ALPHABETA
     for i in range(repeat_times):
+        game.set_heuristic_X(Heuristic.HeuristicE1())
+        game.set_heuristic_O(Heuristic.HeuristicE2())
         if block_position is None:
             game.put_random_blocks()
         else:
