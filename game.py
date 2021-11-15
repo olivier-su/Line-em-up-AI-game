@@ -72,15 +72,22 @@ class Game:
     def draw_board(self):
         print()
         print(" +", end="")
+        self.file.write(" +")
         for i in range(self.size):
             print(chr(ord('A') + i), end="")
+            self.file.write(chr(ord('A') + i))
         print()
+        self.file.write("\n")
         for y in range(0, self.size):
             print(f"{y}|", end="")
+            self.file.write(f"{y}|")
             for x in range(0, self.size):
                 print(F'{self.current_state[x][y]}', end="")
+                self.file.write(F'{self.current_state[x][y]}')
             print()
+            self.file.write("\n")
         print()
+        self.file.write("\n")
 
     def is_valid(self, px, py):
         if px < 0 or px > self.size - 1 or py < 0 or py > self.size - 1:
@@ -333,28 +340,34 @@ class Game:
                             beta = value
         return (value, x, y)
 
-    def play(self, algo=None, player_x=None, player_o=None):
-        if algo == None:
-            algo = self.ALPHABETA
+    def play(self, algo_x=None,algo_o=None, player_x=None, player_o=None):
+        if algo_x == None:
+            algo_x = self.ALPHABETA
+        if algo_o == None:
+            algo_o = self.ALPHABETA
         if player_x == None:
             player_x = self.HUMAN
         if player_o == None:
             player_o = self.HUMAN
+        self.file.write(f"\nPlayer 1: {player_x} d={self.maximum_depth_player_X} a={algo_x == self.ALPHABETA} {self.heuristic_X.get_type()}\n")
+        self.file.write(f"Player 2: {player_o} d={self.maximum_depth_player_O} a={algo_x == self.ALPHABETA} {self.heuristic_O.get_type()}\n\n")
         while True:
             self.draw_board()
             if self.check_end():
                 return
             start = time.time()
-            if algo == self.MINIMAX:
+            if algo_x == self.MINIMAX:
                 if self.player_turn == 'X':
                     (_, x, y) = self.minimax(max=False,start_time=start,current_player=self.player_turn)
-                else:
-                    (_, x, y) = self.minimax(max=True, start_time=start,current_player=self.player_turn)
-            else:  # algo == self.ALPHABETA
+            elif algo_x == self.ALPHABETA:  # algo == self.ALPHABETA
                 if self.player_turn == 'X':
                     (m, x, y) = self.alphabeta(max=False,start_time=start,current_player=self.player_turn)
-                else:
-                    (m, x, y) = self.alphabeta(max=True, start_time=start,current_player=self.player_turn)
+            if algo_o == self.MINIMAX:
+                if self.player_turn == 'O':
+                    (_, x, y) = self.minimax(max=True, start_time=start,current_player=self.player_turn)
+            elif algo_o == self.ALPHABETA:  # algo == self.ALPHABETA
+                if self.player_turn == 'O':
+                    (m, x, y) = self.alphabeta(max=True,start_time=start,current_player=self.player_turn)
             end = time.time()
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
                     self.player_turn == 'O' and player_o == self.HUMAN):

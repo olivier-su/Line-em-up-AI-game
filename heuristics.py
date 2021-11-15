@@ -15,6 +15,10 @@ class HeuristicStrategy(ABC):
     def get_winning_score(self):
         pass
 
+    @abstractmethod
+    def get_type(self):
+        pass
+
 
 def is_in_valid_range(size, x, y):
     if 0 <= x < size and 0 <= y < size:
@@ -48,6 +52,9 @@ class HeuristicE1(HeuristicStrategy):
 
     def get_winning_score(self):
         return 1000
+
+    def get_type(self):
+        return "e1"
 
 
 # get that direction to a string, i and j indicate the direciton
@@ -103,3 +110,6 @@ class HeuristicE2(HeuristicStrategy):
 
     def get_winning_score(self):
         return 1000
+
+    def get_type(self):
+        return "e2"
