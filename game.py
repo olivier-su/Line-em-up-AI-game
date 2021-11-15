@@ -20,7 +20,10 @@ class Game:
         self.heuristic = None
         self.max_depth_player_X = maximum_depth_player_X
         self.max_depth_player_O = maximum_depth_player_O
-        self.search_time = search_time * 1000
+        self.search_time = search_time
+        self.blocks_coordinates = []
+        self.file = open(f"gameTrace-{self.size}{self.block_count}{self.goal}{self.search_time}.txt","w")
+        self.file.write(f"n={self.size} b={self.block_count} s={self.goal} t={self.search_time}\n")
 
     def set_heuristic(self, heuristic: Heuristic.HeuristicStrategy):
         self.heuristic = heuristic
@@ -42,12 +45,15 @@ class Game:
         if self.current_state[px][py] != '.':
             return False
         self.current_state[px][py] = '*'
+        coordinates = (px,py)
+        self.blocks_coordinates.append(coordinates)
         self.remain_blocks = self.remain_blocks - 1
         return True
 
     def put_random_blocks(self):
         while self.remain_blocks > 0:
             self.put_block(random.randrange(self.size), random.randrange(self.size))
+        self.file.write(f"blocs={self.blocks_coordinates}\n")
 
     def draw_board(self):
         print()
@@ -225,7 +231,7 @@ class Game:
             return (1, x, y)
         elif result == '.':
             return (0, x, y)
-        if (time.time()-start_time)*1000 >= self.search_time*0.9:
+        if (time.time()-start_time)*1000 >= self.search_time*0.9*1000:
             return (self.evaluate_state(),x,y)
         if current_depth == maximum_depth:
             return (self.evaluate_state(), x, y)
@@ -323,9 +329,9 @@ class Game:
                     (_, x, y) = self.minimax(max=True, start_time=start)
             else:  # algo == self.ALPHABETA
                 if self.player_turn == 'X':
-                    (m, x, y) = self.alphabeta(max=False)
+                    (m, x, y) = self.alphabeta(max=False,start_time=start)
                 else:
-                    (m, x, y) = self.alphabeta(max=True)
+                    (m, x, y) = self.alphabeta(max=True, start_time=start)
             end = time.time()
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
                     self.player_turn == 'O' and player_o == self.HUMAN):
