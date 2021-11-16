@@ -12,11 +12,10 @@ class Game:
     def __init__(self, recommend=True, size=3, goal=3, block_count=0, maximum_depth_player_X=0,
                  maximum_depth_player_O=0, search_time=5):
         self.size = size
+        self.block_count = block_count
         self.initialize_game()
         self.recommend = recommend
         self.goal = goal
-        self.block_count = block_count
-        self.remain_blocks = block_count
         self.heuristic_X = Heuristic.HeuristicE1()
         self.heuristic_O= Heuristic.HeuristicE2()
         self.maximum_depth_player_X = maximum_depth_player_X
@@ -52,6 +51,7 @@ class Game:
         self.current_state = [["."] * self.size for i in range(self.size)]
         # Player X always plays first
         self.player_turn = 'X'
+        self.remain_blocks = self.block_count
 
     def put_block(self, px, py):
         if self.remain_blocks == 0:
