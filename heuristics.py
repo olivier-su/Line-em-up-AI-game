@@ -6,6 +6,7 @@ import re
 class HeuristicStrategy(ABC):
     max_target = 'O'
     min_target = 'X'
+    evaluation_count = 0
 
     @abstractmethod
     def evaluate_state(self, state, size, goal):
@@ -48,6 +49,7 @@ class HeuristicE1(HeuristicStrategy):
                     score += check_empty_around(state, size, x, y)
                 if state[x][y] == self.min_target:
                     score -= check_empty_around(state, size, x, y)
+        self.evaluation_count=self.evaluation_count+1
         return score
 
     def get_winning_score(self):
@@ -109,7 +111,7 @@ class HeuristicE2(HeuristicStrategy):
         for y in range(size):
             line_string=get_string_by_direction(state,size,0,y,1,-1)
             score+=self.get_score_from_string(line_string,goal)
-
+        self.evaluation_count = self.evaluation_count + 1
         return score
 
     def get_winning_score(self):
