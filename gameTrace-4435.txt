@@ -11,7 +11,7 @@ Player 2: 3 d=6 a=False e1
 
 Move1
 Player X under AI control plays: B1
-i   Evaluation time: 0.012502193450927734s
+i   Evaluation time: 0.01200103759765625s
 ii  Heuristic evaluations: 70
 iii Evaluations by depth: {6: 28, 5: 4, 4: 8, 3: 9, 2: 10, 1: 11}
 iv  Average evaluation depth: 3.9714285714285715
@@ -25,7 +25,7 @@ iv  Average evaluation depth: 3.9714285714285715
 
 Move2
 Player O under AI control plays: B2
-i   Evaluation time: 0.006501913070678711s
+i   Evaluation time: 0.00650334358215332s
 ii  Heuristic evaluations: 97
 iii Evaluations by depth: {6: 60, 5: 4, 4: 6, 3: 8, 2: 9, 1: 10}
 iv  Average evaluation depth: 4.701030927835052
@@ -39,7 +39,7 @@ iv  Average evaluation depth: 4.701030927835052
 
 Move3
 Player X under AI control plays: C1
-i   Evaluation time: 0.010000944137573242s
+i   Evaluation time: 0.010001420974731445s
 ii  Heuristic evaluations: 65
 iii Evaluations by depth: {6: 30, 5: 6, 4: 5, 3: 7, 2: 8, 1: 9}
 iv  Average evaluation depth: 4.246153846153846
@@ -53,10 +53,10 @@ iv  Average evaluation depth: 4.246153846153846
 
 Move4
 Player O under AI control plays: C2
-i   Evaluation time: 0.006001472473144531s
-ii  Heuristic evaluations: 85
-iii Evaluations by depth: {6: 56, 5: 6, 4: 2, 3: 6, 2: 7, 1: 8}
-iv  Average evaluation depth: 4.870588235294117
+i   Evaluation time: 0.006000995635986328s
+ii  Heuristic evaluations: 88
+iii Evaluations by depth: {6: 60, 5: 5, 4: 2, 3: 6, 2: 7, 1: 8}
+iv  Average evaluation depth: 4.920454545454546
 
 
  +ABCD
@@ -67,10 +67,10 @@ iv  Average evaluation depth: 4.870588235294117
 
 Move5
 Player X under AI control plays: A1
-i   Evaluation time: 0.006500959396362305s
-ii  Heuristic evaluations: 69
-iii Evaluations by depth: {1: 7, 5: 12, 6: 36, 4: 4, 3: 4, 2: 6}
-iv  Average evaluation depth: 4.681159420289855
+i   Evaluation time: 0.006501197814941406s
+ii  Heuristic evaluations: 67
+iii Evaluations by depth: {1: 7, 5: 13, 6: 33, 4: 4, 3: 4, 2: 6}
+iv  Average evaluation depth: 4.626865671641791
 
 
  +ABCD
@@ -82,14 +82,13 @@ iv  Average evaluation depth: 4.681159420289855
 The winner is X!
 
 For X:
-6(b)i   Average evaluation time: 0.00966803232828776
-6(b)ii  Total heuristic evaluations: 204
-6(b)iii Evaluations by depth: {6: 94, 5: 22, 4: 17, 3: 20, 2: 24, 1: 27}
-6(b)iv  Average evaluation depth: 4.299580612624091
+6(b)i   Average evaluation time: 0.009501218795776367
+6(b)ii  Total heuristic evaluations: 202
+6(b)iii Evaluations by depth: {6: 91, 5: 23, 4: 17, 3: 20, 2: 24, 1: 27}
+6(b)iv  Average evaluation depth: 4.281482696408069
 6(b)vi  Total moves: 5
 For Y:
-6(b)i   Average evaluation time: 0.006251692771911621
-6(b)ii  Total heuristic evaluations: 182
-6(b)iii Evaluations by depth: {6: 116, 5: 10, 4: 8, 3: 14, 2: 16, 1: 18}
-6(b)iv  Average evaluation depth: 4.7858095815645845
-
+6(b)i   Average evaluation time: 0.006252169609069824
+6(b)ii  Total heuristic evaluations: 185
+6(b)iii Evaluations by depth: {6: 120, 5: 9, 4: 8, 3: 14, 2: 16, 1: 18}
+6(b)iv  Average evaluation depth: 4.810742736644799
