@@ -22,8 +22,27 @@ class Game:
         self.maximum_depth_player_O = maximum_depth_player_O
         self.search_time = search_time
         self.blocks_coordinates = []
-        self.file = open(f"gameTrace-{self.size}{self.block_count}{self.goal}{self.search_time}.txt","w")
-        self.file.write(f"n={self.size} b={self.block_count} s={self.goal} t={self.search_time}\n")
+        self.trace_file = open(f"gameTrace-{self.size}{self.block_count}{self.goal}{self.search_time}.txt", "w")
+        self.trace_file.write(f"n={self.size} b={self.block_count} s={self.goal} t={self.search_time}\n")
+
+        self.step_depth_counter_X={}
+        self.step_depth_counter_O = {}
+
+
+    def initialize_game(self):
+        self.current_state = [["."] * self.size for i in range(self.size)]
+        # Player X always plays first
+        self.player_turn = 'X'
+        self.remain_blocks = self.block_count
+        self.evaluation_time_X= []
+        self.evaluation_time_O=[]
+        self.total_heuristic_x= 0
+        self.total_heuristic_o = 0
+        self.total_heuristic_depth_x={}
+        self.total_heuristic_depth_o = {}
+        self.evaluation_depth_x=[]
+        self.evaluation_depth_o=[]
+        self.step_count=0
 
     def set_heuristic_X(self, heuristic: Heuristic.HeuristicStrategy):
         self.heuristic_X = heuristic
@@ -47,11 +66,7 @@ class Game:
     # def get_winning_score_O(self):
     #     return self.heuristic_O.get_wining_score()
 
-    def initialize_game(self):
-        self.current_state = [["."] * self.size for i in range(self.size)]
-        # Player X always plays first
-        self.player_turn = 'X'
-        self.remain_blocks = self.block_count
+
 
     def put_block(self, px, py):
         if self.remain_blocks == 0:
@@ -67,27 +82,27 @@ class Game:
     def put_random_blocks(self):
         while self.remain_blocks > 0:
             self.put_block(random.randrange(self.size), random.randrange(self.size))
-        self.file.write(f"blocs={self.blocks_coordinates}\n")
+        self.trace_file.write(f"blocs={self.blocks_coordinates}\n")
 
     def draw_board(self):
         print()
         print(" +", end="")
-        self.file.write(" +")
+        self.trace_file.write(" +")
         for i in range(self.size):
             print(chr(ord('A') + i), end="")
-            self.file.write(chr(ord('A') + i))
+            self.trace_file.write(chr(ord('A') + i))
         print()
-        self.file.write("\n")
+        self.trace_file.write("\n")
         for y in range(0, self.size):
             print(f"{y}|", end="")
-            self.file.write(f"{y}|")
+            self.trace_file.write(f"{y}|")
             for x in range(0, self.size):
                 print(F'{self.current_state[x][y]}', end="")
-                self.file.write(F'{self.current_state[x][y]}')
+                self.trace_file.write(F'{self.current_state[x][y]}')
             print()
-            self.file.write("\n")
+            self.trace_file.write("\n")
         print()
-        self.file.write("\n")
+        self.trace_file.write("\n")
 
     def is_valid(self, px, py):
         if px < 0 or px > self.size - 1 or py < 0 or py > self.size - 1:
@@ -141,6 +156,25 @@ class Game:
             if not should_continue:
                 return self.current_state[px + j][py - j]
         return None
+    def out_trace_result(self):
+        self.trace_file.write(f"\nFor X:\n")
+        evaluation_time_sum=0
+        for t in self.evaluation_time_X:
+            evaluation_time_sum+=t
+        evaluation_time_x=evaluation_time_sum/len(self.evaluation_time_X)
+        self.trace_file.write(f"6(b)i   Average evaluation time: {evaluation_time_x}\n")
+        self.trace_file.write(f'6(b)ii  Total heuristic evaluations: {self.total_heuristic_x}\n')
+
+        self.trace_file.write(f'6(b)iii Evaluations by depth: {self.total_heuristic_depth_x}\n')
+        evaluation_depth_sum=0
+        for d in self.evaluation_depth_x:
+            evaluation_depth_sum+=d
+        evaluation_depth_x=evaluation_depth_sum/len(self.evaluation_depth_x)
+        self.trace_file.write(f'6(b)iv  Average evaluation depth: {evaluation_depth_x}\n')
+
+        #skiped recusion depth
+        self.trace_file.write(f'6(b)vi  Total moves: {self.step_count}')
+
 
     def check_end(self):
         self.result = self.is_end()
@@ -148,11 +182,16 @@ class Game:
         if self.result is not None:
             if self.result == 'X':
                 print('The winner is X!')
+                self.trace_file.write('The winner is X!\n')
             elif self.result == 'O':
                 print('The winner is O!')
+                self.trace_file.write('The winner is O!\n')
             elif self.result == '.':
                 print("It's a tie!")
+                self.trace_file.write("It's a tie!\n")
+            self.out_trace_result()
             self.initialize_game()
+
         return self.result
 
     def input_move(self):
@@ -231,6 +270,26 @@ class Game:
         # It's a tie!
         return '.'
 
+    def add_step_counter(self,current_player,current_depth):
+        if current_player=='X':
+            if current_depth in self.step_depth_counter_X:
+                self.step_depth_counter_X[current_depth]+=1
+            else:
+                self.step_depth_counter_X[current_depth]=1
+            if current_depth in self.total_heuristic_depth_x:
+                self.total_heuristic_depth_x[current_depth]+=1
+            else:
+                self.total_heuristic_depth_x[current_depth]=1
+        if current_player=='O':
+            if current_depth in self.step_depth_counter_O:
+                self.step_depth_counter_O[current_depth]+=1
+            else:
+                self.step_depth_counter_O[current_depth]=1
+            if current_depth in self.total_heuristic_depth_o:
+                self.total_heuristic_depth_o[current_depth]+=1
+            else:
+                self.total_heuristic_depth_o[current_depth]=1
+
     def minimax(self,start_time,current_player, max=False, current_depth=0):
         # Minimizing for 'X' and maximizing for 'O'
         # Possible values are:
@@ -252,14 +311,19 @@ class Game:
         y = None
         result = self.is_end()
         if result == 'X':
+            self.add_step_counter(current_player,current_depth)
             return (-winning_score, x, y)
         elif result == 'O':
+            self.add_step_counter(current_player, current_depth)
             return (winning_score, x, y)
         elif result == '.':
+            self.add_step_counter(current_player, current_depth)
             return (0, x, y)
         if (time.time() - start_time) * 1000 >= self.search_time * 0.9:
+            self.add_step_counter(current_player, current_depth)
             return (self.evaluate_state(current_player), x, y)
         if current_depth == maximum_depth:
+            self.add_step_counter(current_player, current_depth)
             return (self.evaluate_state(current_player), x, y)
         for i in range(0, self.size):
             for j in range(0, self.size):
@@ -301,14 +365,19 @@ class Game:
         y = None
         result = self.is_end()
         if result == 'X':
+            self.add_step_counter(current_player, current_depth)
             return (-winning_score, x, y)
         elif result == 'O':
+            self.add_step_counter(current_player, current_depth)
             return (winning_score, x, y)
         elif result == '.':
+            self.add_step_counter(current_player, current_depth)
             return (0, x, y)
         if (time.time()-start_time)*1000 >= self.search_time*0.9:
+            self.add_step_counter(current_player, current_depth)
             return (self.evaluate_state(current_player),x,y)
         if current_depth == maximum_depth:
+            self.add_step_counter(current_player, current_depth)
             return (self.evaluate_state(current_player), x, y)
         for i in range(0, self.size):
             for j in range(0, self.size):
@@ -340,6 +409,8 @@ class Game:
                             beta = value
         return (value, x, y)
 
+
+
     def play(self, algo_x=None,algo_o=None, player_x=None, player_o=None):
         heuristic_count_x_last_time = 0
         heuristic_count_o_last_time = 0
@@ -351,11 +422,12 @@ class Game:
             player_x = self.HUMAN
         if player_o == None:
             player_o = self.HUMAN
-        self.file.write(f"\nPlayer 1: {player_x} d={self.maximum_depth_player_X} a={algo_x == self.ALPHABETA} {self.heuristic_X.get_type()}\n")
-        self.file.write(f"Player 2: {player_o} d={self.maximum_depth_player_O} a={algo_x == self.ALPHABETA} {self.heuristic_O.get_type()}\n\n")
+        self.trace_file.write(f"\nPlayer 1: {player_x} d={self.maximum_depth_player_X} a={algo_x == self.ALPHABETA} {self.heuristic_X.get_type()}\n")
+        self.trace_file.write(f"Player 2: {player_o} d={self.maximum_depth_player_O} a={algo_x == self.ALPHABETA} {self.heuristic_O.get_type()}\n\n")
         while True:
             self.draw_board()
             if self.check_end():
+
                 return
             start = time.time()
             if algo_x == self.MINIMAX:
@@ -383,15 +455,39 @@ class Game:
                 print(F'Evaluation time: {round(end - start, 7)}s')
                 print(F'Player {self.player_turn} under AI control plays: x = {x}, y = {y}')
             self.current_state[x][y] = self.player_turn
-            self.file.write(f"Player {self.player_turn} under {current_player_type} control plays: {chr(ord('A') + x)}{y}\n")
-            self.file.write(f"i   Evaluation time: {end-start}s\n")
+            self.step_count+=1
+            self.trace_file.write(f'Move{self.step_count}\n')
+            self.trace_file.write(f"Player {self.player_turn} under {current_player_type} control plays: {chr(ord('A') + x)}{y}\n")
+            self.trace_file.write(f"i   Evaluation time: {end - start}s\n")
             heuristic_count = 0
+            depth_counter={}
+
             if self.player_turn == 'X':
-                heuristic_count = self.heuristic_X.evaluation_count - heuristic_count_x_last_time
+                #heuristic_count = self.heuristic_X.evaluation_count - heuristic_count_x_last_time
                 heuristic_count_x_last_time = self.heuristic_X.evaluation_count
+                depth_counter=self.step_depth_counter_X
+                self.step_depth_counter_X={}
+                self.evaluation_time_X.append(end-start)
+
             else:
-                heuristic_count = self.heuristic_O.evaluation_count - heuristic_count_o_last_time
+                #heuristic_count = self.heuristic_O.evaluation_count - heuristic_count_o_last_time
                 heuristic_count_o_last_time = self.heuristic_O.evaluation_count
-            self.file.write(f"ii  Heuristic evaluations: {heuristic_count}\n")
-            self.file.write(f"iii Evaluations by depth: {{}}")
+                depth_counter=self.step_depth_counter_O
+                self.step_depth_counter_O={}
+                self.evaluation_time_O.append(end - start)
+            denominator=0
+            numerator=0
+            for key in depth_counter:
+                denominator+=key*depth_counter[key]
+                numerator+=depth_counter[key]
+            average_depth = denominator/numerator
+            if self.player_turn == 'X':
+                self.total_heuristic_x+=numerator
+                self.evaluation_depth_x.append(average_depth)
+            else:
+                self.total_heuristic_o += numerator
+                self.evaluation_depth_o.append(average_depth)
+            self.trace_file.write(f"ii  Heuristic evaluations: {numerator}\n")
+            self.trace_file.write(f"iii Evaluations by depth: {depth_counter}\n")
+            self.trace_file.write(f'iv  Average evaluation depth: {average_depth}\n\n\n')
             self.switch_player()
