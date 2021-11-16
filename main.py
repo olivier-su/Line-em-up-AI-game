@@ -127,6 +127,8 @@ def main():
         run_customized_game()
     elif choice == '2':
         run_preset_experiments()
+    elif choice == '3':
+        run_games(5,2,3,6,6,6,True,True,None,1)
     else:
         print('Invalid input, will run preset experiments')
         run_preset_experiments()

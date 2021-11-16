@@ -341,6 +341,8 @@ class Game:
         return (value, x, y)
 
     def play(self, algo_x=None,algo_o=None, player_x=None, player_o=None):
+        heuristic_count_x_last_time = 0
+        heuristic_count_o_last_time = 0
         if algo_x == None:
             algo_x = self.ALPHABETA
         if algo_o == None:
@@ -369,6 +371,7 @@ class Game:
                 if self.player_turn == 'O':
                     (m, x, y) = self.alphabeta(max=True,start_time=start,current_player=self.player_turn)
             end = time.time()
+            current_player_type = "Human"
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
                     self.player_turn == 'O' and player_o == self.HUMAN):
                 if self.recommend:
@@ -376,7 +379,19 @@ class Game:
                     print(F'Recommended move: x = {x}, y = {y}')
                 (x, y) = self.input_move()
             if (self.player_turn == 'X' and player_x == self.AI) or (self.player_turn == 'O' and player_o == self.AI):
+                current_player_type = "AI"
                 print(F'Evaluation time: {round(end - start, 7)}s')
                 print(F'Player {self.player_turn} under AI control plays: x = {x}, y = {y}')
             self.current_state[x][y] = self.player_turn
+            self.file.write(f"Player {self.player_turn} under {current_player_type} control plays: {chr(ord('A') + x)}{y}\n")
+            self.file.write(f"i   Evaluation time: {end-start}s\n")
+            heuristic_count = 0
+            if self.player_turn == 'X':
+                heuristic_count = self.heuristic_X.evaluation_count - heuristic_count_x_last_time
+                heuristic_count_x_last_time = self.heuristic_X.evaluation_count
+            else:
+                heuristic_count = self.heuristic_O.evaluation_count - heuristic_count_o_last_time
+                heuristic_count_o_last_time = self.heuristic_O.evaluation_count
+            self.file.write(f"ii  Heuristic evaluations: {heuristic_count}\n")
+            self.file.write(f"iii Evaluations by depth: {{}}")
             self.switch_player()
