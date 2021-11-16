@@ -1,5 +1,7 @@
-from game import Game
+import game
+from game import *
 import heuristics as Heuristic
+from statistics import mean
 
 
 def run_customized_game():
@@ -53,9 +55,15 @@ def run_customized_game():
 
 
 def run_games(n, b, s, t, d1, d2, a1, a2, block_position, repeat_times):
-    game = Game(size=n, block_count=b, goal=s, search_time=t, maximum_depth_player_X=d1,
-                maximum_depth_player_O=d2)
 
+    #score_board = open(f"scoreboard-{n}{b}{s}{t}.txt", "a")
+    score_board = open(f"scoreboard.txt", "a")
+    score_board.write(f"n={n} b={b} s={s} t={t}\n")
+    score_board.write(f"For player 1: d={d1}\t a={a1}\n")
+    score_board.write(f"For player 2: d={d2}\t a={a2}\n\n")
+    score_board.write(f'{repeat_times}*2 Games\n\n')
+    e1_win_count=0
+    e2_win_count=0
     algo_x = Game.MINIMAX
     algo_y = Game.MINIMAX
     if a1:
@@ -63,23 +71,43 @@ def run_games(n, b, s, t, d1, d2, a1, a2, block_position, repeat_times):
     if a2:
         algo_y = Game.ALPHABETA
     for i in range(repeat_times):
-        game.set_heuristic_X(Heuristic.HeuristicE1())
-        game.set_heuristic_O(Heuristic.HeuristicE2())
+        g = Game(size=n, block_count=b, goal=s, search_time=t, maximum_depth_player_X=d1,
+                 maximum_depth_player_O=d2)
+        g.set_heuristic_X(Heuristic.HeuristicE1())
+        g.set_heuristic_O(Heuristic.HeuristicE2())
         if block_position is None:
-            game.put_random_blocks()
+            g.put_random_blocks()
         else:
             for block in block_position:
-                game.put_block(block[0], block[1])
-        game.play(algo_x=algo_x, algo_o=algo_y, player_x=Game.AI, player_o=Game.AI)
-        game.set_heuristic_X(Heuristic.HeuristicE2())
-        game.set_heuristic_O(Heuristic.HeuristicE1())
-        if block_position is None:
-            game.put_random_blocks()
-        else:
-            for block in block_position:
-                game.put_block(block[0], block[1])
-        game.play(algo_x=algo_y, algo_o=algo_x, player_x=Game.AI, player_o=Game.AI)
+                g.put_block(block[0], block[1])
+        result=g.play(algo_x=algo_x, algo_o=algo_y, player_x=Game.AI, player_o=Game.AI)
+        if result=='X':
+            e1_win_count+=1
+        elif result=='O':
+            e2_win_count+=1
 
+        g = Game(size=n, block_count=b, goal=s, search_time=t, maximum_depth_player_X=d2,
+                 maximum_depth_player_O=d1)
+        g.set_heuristic_X(Heuristic.HeuristicE2())
+        g.set_heuristic_O(Heuristic.HeuristicE1())
+        if block_position is None:
+            g.put_random_blocks()
+        else:
+            for block in block_position:
+                g.put_block(block[0], block[1])
+        result=g.play(algo_x=algo_y, algo_o=algo_x, player_x=Game.AI, player_o=Game.AI)
+        if result=='X':
+            e2_win_count+=1
+        elif result=='O':
+            e1_win_count+=1
+    score_board.write(f'Total wins for heuristic e1: {e1_win_count} {e1_win_count/20*100}%\n' )
+    score_board.write(f'Total wins for heuristic e2: {e2_win_count} {e2_win_count / 20 * 100}%\n\n')
+    score_board.write(f'i   Average evaluation time: {mean(game.global_evaluation_time)}\n')
+    score_board.write(f'ii  Total heuristic evaluations: {game.global_heuristic_evaluation}\n')
+    score_board.write(f'iii Evaluations by depth: {game.global_heuristic_evaluation_depth}\n')
+    score_board.write(f'iv  Average evaluation depth: {mean(game.global_evaluation_depth)}\n')
+
+    score_board.write(f'vi  Average moves per game: {mean(game.global_step_count)}\n\n')
 
 def run_preset_experiments():
     # the position given in the requirement is out of the bound (4) so used 3 to avoid it
