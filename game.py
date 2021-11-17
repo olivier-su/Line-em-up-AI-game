@@ -373,7 +373,8 @@ class Game:
         elif result == '.':
             self.add_step_counter(current_player, current_depth)
             return (0, x, y,current_depth)
-        if (time.time() - start_time) * 1000 >= self.search_time * 0.9:
+        current_time=time.time()
+        if ( current_time- start_time)  >= self.search_time * 0.9:
             self.add_step_counter(current_player, current_depth)
             return (self.evaluate_state(current_player), x, y,current_depth)
         if current_depth == maximum_depth:
@@ -430,7 +431,8 @@ class Game:
         elif result == '.':
             self.add_step_counter(current_player, current_depth)
             return (0, x, y,current_depth)
-        if (time.time() - start_time) * 1000 >= self.search_time * 0.9:
+        current_time=time.time()
+        if (current_time - start_time) >= self.search_time * 0.9:
             self.add_step_counter(current_player, current_depth)
             return (self.evaluate_state(current_player), x, y,current_depth)
         if current_depth == maximum_depth:
