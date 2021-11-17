@@ -7,6 +7,7 @@ global_heuristic_evaluation = 0
 global_heuristic_evaluation_depth = {}
 global_evaluation_depth = []
 global_step_count=[]
+global_recursion_depth=[]
 
 
 class Game:
@@ -48,6 +49,8 @@ class Game:
         self.evaluation_depth_x = []
         self.evaluation_depth_o = []
         self.step_count = 0
+        self.recusion_depth_x=[]
+        self.recusion_depth_o=[]
 
     def set_heuristic_X(self, heuristic: Heuristic.HeuristicStrategy):
         self.heuristic_X = heuristic
@@ -186,9 +189,15 @@ class Game:
         evaluation_depth_x = evaluation_depth_sum / len(self.evaluation_depth_x)
         self.trace_file.write(f'6(b)iv  Average evaluation depth: {evaluation_depth_x}\n')
         global_evaluation_depth.append(evaluation_depth_x)
-        # skiped recusion depth
-        self.trace_file.write(f'6(b)vi  Total moves: {self.step_count}')
+
+        recursion_depth=sum(self.recusion_depth_x)/len(self.recusion_depth_x)
+        self.trace_file.write(f'6(b)v   Average recursion depth: {recursion_depth}\n')
+        global_recursion_depth.append(recursion_depth)
+
+        self.trace_file.write(f'6(b)vi  Total moves: {self.step_count}\n')
         global_step_count.append(self.step_count)
+
+
 
         self.trace_file.write(f"\nFor Y:\n")
         evaluation_time_sum = 0
@@ -213,7 +222,10 @@ class Game:
         evaluation_depth_o = evaluation_depth_sum / len(self.evaluation_depth_o)
         self.trace_file.write(f'6(b)iv  Average evaluation depth: {evaluation_depth_o}\n')
         global_evaluation_depth.append(evaluation_depth_o)
-        # skiped recusion depth
+
+        recursion_depth_o = sum(self.recusion_depth_o) / len(self.recusion_depth_o)
+        self.trace_file.write(f'6(b)v   Average recursion depth: {recursion_depth_o}\n')
+        global_recursion_depth.append(recursion_depth_o)
 
         #step should only show once
         # self.trace_file.write(f'6(b)vi  Total moves: {self.step_count}')
@@ -354,38 +366,41 @@ class Game:
         result = self.is_end()
         if result == 'X':
             self.add_step_counter(current_player, current_depth)
-            return (-winning_score, x, y)
+            return (-winning_score, x, y,current_depth)
         elif result == 'O':
             self.add_step_counter(current_player, current_depth)
-            return (winning_score, x, y)
+            return (winning_score, x, y,current_depth)
         elif result == '.':
             self.add_step_counter(current_player, current_depth)
-            return (0, x, y)
+            return (0, x, y,current_depth)
         if (time.time() - start_time) * 1000 >= self.search_time * 0.9:
             self.add_step_counter(current_player, current_depth)
-            return (self.evaluate_state(current_player), x, y)
+            return (self.evaluate_state(current_player), x, y,current_depth)
         if current_depth == maximum_depth:
             self.add_step_counter(current_player, current_depth)
-            return (self.evaluate_state(current_player), x, y)
+            return (self.evaluate_state(current_player), x, y,current_depth)
+        previous_depth=[]
         for i in range(0, self.size):
             for j in range(0, self.size):
                 if self.current_state[i][j] == '.':
+                    depth=0
                     if max:
                         self.current_state[i][j] = 'O'
-                        (v, _, _) = self.minimax(start_time, current_player, max=False, current_depth=current_depth + 1)
+                        (v, _, _,depth) = self.minimax(start_time, current_player, max=False, current_depth=current_depth + 1)
                         if v > value:
                             value = v
                             x = i
                             y = j
                     else:
                         self.current_state[i][j] = 'X'
-                        (v, _, _) = self.minimax(start_time, current_player, max=True, current_depth=current_depth + 1)
+                        (v, _, _,depth) = self.minimax(start_time, current_player, max=True, current_depth=current_depth + 1)
                         if v < value:
                             value = v
                             x = i
                             y = j
                     self.current_state[i][j] = '.'
-        return (value, x, y)
+                    previous_depth.append(depth)
+        return (value, x, y,sum(previous_depth)/len(previous_depth))
 
     def alphabeta(self, start_time, current_player, alpha=-2, beta=2, max=False, current_depth=0):
         # Minimizing for 'X' and maximizing for 'O'
@@ -408,25 +423,27 @@ class Game:
         result = self.is_end()
         if result == 'X':
             self.add_step_counter(current_player, current_depth)
-            return (-winning_score, x, y)
+            return (-winning_score, x, y,current_depth)
         elif result == 'O':
             self.add_step_counter(current_player, current_depth)
-            return (winning_score, x, y)
+            return (winning_score, x, y,current_depth)
         elif result == '.':
             self.add_step_counter(current_player, current_depth)
-            return (0, x, y)
+            return (0, x, y,current_depth)
         if (time.time() - start_time) * 1000 >= self.search_time * 0.9:
             self.add_step_counter(current_player, current_depth)
-            return (self.evaluate_state(current_player), x, y)
+            return (self.evaluate_state(current_player), x, y,current_depth)
         if current_depth == maximum_depth:
             self.add_step_counter(current_player, current_depth)
-            return (self.evaluate_state(current_player), x, y)
+            return (self.evaluate_state(current_player), x, y,current_depth)
+        previous_depth=[]
         for i in range(0, self.size):
             for j in range(0, self.size):
                 if self.current_state[i][j] == '.':
+                    depth=0
                     if max:
                         self.current_state[i][j] = 'O'
-                        (v, _, _) = self.alphabeta(start_time, current_player, alpha, beta, max=False,
+                        (v, _, _,depth) = self.alphabeta(start_time, current_player, alpha, beta, max=False,
                                                    current_depth=current_depth + 1)
                         if v > value:
                             value = v
@@ -434,24 +451,25 @@ class Game:
                             y = j
                     else:
                         self.current_state[i][j] = 'X'
-                        (v, _, _) = self.alphabeta(start_time, current_player, alpha, beta, max=True,
+                        (v, _, _,depth) = self.alphabeta(start_time, current_player, alpha, beta, max=True,
                                                    current_depth=current_depth + 1)
                         if v < value:
                             value = v
                             x = i
                             y = j
                     self.current_state[i][j] = '.'
+                    previous_depth.append(depth)
                     if max:
                         if value >= beta:
-                            return (value, x, y)
+                            return (value, x, y,sum(previous_depth)/len(previous_depth))
                         if value > alpha:
                             alpha = value
                     else:
                         if value <= alpha:
-                            return (value, x, y)
+                            return (value, x, y,sum(previous_depth)/len(previous_depth))
                         if value < beta:
                             beta = value
-        return (value, x, y)
+        return (value, x, y,sum(previous_depth)/len(previous_depth))
 
     def play(self, algo_x=None, algo_o=None, player_x=None, player_o=None):
         heuristic_count_x_last_time = 0
@@ -468,6 +486,7 @@ class Game:
             f"\nPlayer 1: {player_x} d={self.maximum_depth_player_X} a={algo_x == self.ALPHABETA} {self.heuristic_X.get_type()}\n")
         self.trace_file.write(
             f"Player 2: {player_o} d={self.maximum_depth_player_O} a={algo_x == self.ALPHABETA} {self.heuristic_O.get_type()}\n\n")
+        average_recursion_depth=0.0
         while True:
             self.draw_board()
             result = self.check_end()
@@ -476,16 +495,16 @@ class Game:
             start = time.time()
             if algo_x == self.MINIMAX:
                 if self.player_turn == 'X':
-                    (_, x, y) = self.minimax(max=False, start_time=start, current_player=self.player_turn)
+                    (_, x, y,average_recursion_depth) = self.minimax(max=False, start_time=start, current_player=self.player_turn)
             elif algo_x == self.ALPHABETA:  # algo == self.ALPHABETA
                 if self.player_turn == 'X':
-                    (m, x, y) = self.alphabeta(max=False, start_time=start, current_player=self.player_turn)
+                    (m, x, y,average_recursion_depth) = self.alphabeta(max=False, start_time=start, current_player=self.player_turn)
             if algo_o == self.MINIMAX:
                 if self.player_turn == 'O':
-                    (_, x, y) = self.minimax(max=True, start_time=start, current_player=self.player_turn)
+                    (_, x, y,average_recursion_depth) = self.minimax(max=True, start_time=start, current_player=self.player_turn)
             elif algo_o == self.ALPHABETA:  # algo == self.ALPHABETA
                 if self.player_turn == 'O':
-                    (m, x, y) = self.alphabeta(max=True, start_time=start, current_player=self.player_turn)
+                    (m, x, y,average_recursion_depth) = self.alphabeta(max=True, start_time=start, current_player=self.player_turn)
             end = time.time()
             current_player_type = "Human"
             if (self.player_turn == 'X' and player_x == self.HUMAN) or (
@@ -529,10 +548,13 @@ class Game:
             if self.player_turn == 'X':
                 self.total_heuristic_x += numerator
                 self.evaluation_depth_x.append(average_depth)
+                self.recusion_depth_x.append(average_recursion_depth)
             else:
                 self.total_heuristic_o += numerator
                 self.evaluation_depth_o.append(average_depth)
+                self.recusion_depth_o.append(average_recursion_depth)
             self.trace_file.write(f"ii  Heuristic evaluations: {numerator}\n")
             self.trace_file.write(f"iii Evaluations by depth: {depth_counter}\n")
-            self.trace_file.write(f'iv  Average evaluation depth: {average_depth}\n\n\n')
+            self.trace_file.write(f'iv  Average evaluation depth: {average_depth}\n')
+            self.trace_file.write(f'v   Average recursion depth: {average_recursion_depth}\n\n\n')
             self.switch_player()
