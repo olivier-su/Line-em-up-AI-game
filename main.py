@@ -106,7 +106,7 @@ def run_games(n, b, s, t, d1, d2, a1, a2, block_position, repeat_times):
     score_board.write(f'ii  Total heuristic evaluations: {game.global_heuristic_evaluation}\n')
     score_board.write(f'iii Evaluations by depth: {game.global_heuristic_evaluation_depth}\n')
     score_board.write(f'iv  Average evaluation depth: {mean(game.global_evaluation_depth)}\n')
-
+    score_board.write(f'v   Average recursion depth: {mean(game.global_recursion_depth)}\n')
     score_board.write(f'vi  Average moves per game: {mean(game.global_step_count)}\n\n')
 
 def run_preset_experiments():
