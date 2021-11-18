@@ -55,7 +55,12 @@ def run_customized_game():
 
 
 def run_games(n, b, s, t, d1, d2, a1, a2, block_position, repeat_times):
-
+    game.global_evaluation_time = []
+    game.global_heuristic_evaluation = 0
+    game.global_heuristic_evaluation_depth = {}
+    game.global_evaluation_depth = []
+    game.global_step_count = []
+    game.global_recursion_depth = []
     #score_board = open(f"scoreboard-{n}{b}{s}{t}.txt", "a")
     score_board = open(f"scoreboard.txt", "a")
     score_board.write(f"n={n} b={b} s={s} t={t}\n")
@@ -100,8 +105,8 @@ def run_games(n, b, s, t, d1, d2, a1, a2, block_position, repeat_times):
             e2_win_count+=1
         elif result=='O':
             e1_win_count+=1
-    score_board.write(f'Total wins for heuristic e1: {e1_win_count} {e1_win_count/20*100}%\n' )
-    score_board.write(f'Total wins for heuristic e2: {e2_win_count} {e2_win_count / 20 * 100}%\n\n')
+    score_board.write(f'Total wins for heuristic e1: {e1_win_count} {e1_win_count/(2*repeat_times)*100}%\n' )
+    score_board.write(f'Total wins for heuristic e2: {e2_win_count} {e2_win_count / (2*repeat_times) * 100}%\n\n')
     score_board.write(f'i   Average evaluation time: {mean(game.global_evaluation_time)}\n')
     score_board.write(f'ii  Total heuristic evaluations: {game.global_heuristic_evaluation}\n')
     score_board.write(f'iii Evaluations by depth: {game.global_heuristic_evaluation_depth}\n')
